@@ -1,1 +1,73 @@
+name: Build Android APK
 
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.ts'
+      - 'vite.config.ts'
+      - 'index.html'
+      - 'src/**'
+      - '.github/workflows/android-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configurer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurer Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vérifier si le projet Android existe déjà
+        id: android_project
+        run: |
+          if [ -d android ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Générer le projet Android
+        if: steps.android_project.outputs.exists != 'true'
+        run: npx cap add android
+
+      - name: Construire l’application et synchroniser Capacitor
+        run: |
+          npm run build
+          npx cap sync android
+
+      - name: Construire l’APK de débogage
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Publier l’APK comme artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crhimastiano-studio-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
