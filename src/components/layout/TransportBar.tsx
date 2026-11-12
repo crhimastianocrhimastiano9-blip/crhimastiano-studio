@@ -1,17 +1,39 @@
 import { useStudio } from '../../context/StudioContext';
+import { AudioEngine } from '../../audio/AudioEngine';
 
-export function StudioHeader() {
-  const { project } = useStudio();
+const engine = new AudioEngine();
+
+export function TransportBar() {
+  const { project, updateTempo } = useStudio();
+
+  const handlePlayDemo = async () => {
+    await engine.resume();
+    await engine.playTone(220, 0.35);
+  };
 
   return (
-    <header className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-      <div>
-        <p style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#a5b4fc' }}>Crhimastiano</p>
-        <h1 style={{ margin: '6px 0 0', fontSize: '2rem' }}>{project.name}</h1>
+    <div className="card" style={{ marginTop: 18, display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button type="button" className="secondary-btn">⏮</button>
+        <button type="button" className="primary-btn" onClick={handlePlayDemo}>▶</button>
+        <button type="button" className="secondary-btn">⏭</button>
       </div>
-      <button type="button" className="primary-btn">
-        Nouveau projet
-      </button>
-    </header>
+
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <label className="pill">
+          <input
+            type="range"
+            min={60}
+            max={180}
+            value={project.bpm}
+            onChange={(event) => updateTempo(Number(event.target.value))}
+            style={{ width: 110 }}
+          />
+          {project.bpm} BPM
+        </label>
+        <span className="pill">{project.timeSignature}</span>
+        <span className="pill">{project.key} Major</span>
+      </div>
+    </div>
   );
 }

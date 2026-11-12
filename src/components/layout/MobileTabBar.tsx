@@ -1,39 +1,34 @@
 import { useStudio } from '../../context/StudioContext';
-import { AudioEngine } from '../../audio/AudioEngine';
+import type { StudioTab } from '../../types/daw';
 
-const engine = new AudioEngine();
+const tabs: { key: StudioTab; label: string }[] = [
+  { key: 'home', label: 'Accueil' },
+  { key: 'multitrack', label: 'Multitrack' },
+  { key: 'beatmaker', label: 'Beat' },
+  { key: 'voice', label: 'Voix' },
+  { key: 'mix', label: 'Mix' },
+  { key: 'ai', label: 'IA' },
+  { key: 'export', label: 'Export' },
+];
 
-export function TransportBar() {
-  const { project, updateTempo } = useStudio();
-
-  const handlePlayDemo = () => {
-    engine.init();
-    engine.playTone(220, 0.35);
-  };
+export function MobileTabBar() {
+  const { activeTab, setActiveTab } = useStudio();
 
   return (
-    <div className="card" style={{ marginTop: 18, display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <button type="button" className="secondary-btn">⏮</button>
-        <button type="button" className="primary-btn" onClick={handlePlayDemo}>▶</button>
-        <button type="button" className="secondary-btn">⏭</button>
+    <nav className="card" style={{ marginTop: 18 }}>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between', overflowX: 'auto', flexWrap: 'wrap' }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            className={tab.key === activeTab ? 'primary-btn' : 'secondary-btn'}
+            onClick={() => setActiveTab(tab.key)}
+            style={{ flex: '1 1 120px' }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <label className="pill">
-          <input
-            type="range"
-            min={60}
-            max={180}
-            value={project.bpm}
-            onChange={(event) => updateTempo(Number(event.target.value))}
-            style={{ width: 110 }}
-          />
-          {project.bpm} BPM
-        </label>
-        <span className="pill">{project.timeSignature}</span>
-        <span className="pill">{project.key} Major</span>
-      </div>
-    </div>
+    </nav>
   );
 }

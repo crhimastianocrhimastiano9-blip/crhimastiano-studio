@@ -1,50 +1,31 @@
 import { useState } from 'react';
 
-const rows = ['Kick', 'Snare', 'Clap', 'Bass'];
-const steps = Array.from({ length: 16 }, (_, i) => i);
-
-export function BeatMakerStudio() {
-  const [pattern, setPattern] = useState<Record<string, boolean[]>>({
-    Kick: [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false],
-    Snare: [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false],
-    Clap: [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false],
-    Bass: [true, false, true, false, false, true, false, true, true, false, true, false, false, true, false, true],
-  });
-
-  const toggleStep = (row: string, step: number) => {
-    setPattern((current) => ({
-      ...current,
-      [row]: current[row].map((value, index) => (index === step ? !value : value)),
-    }));
-  };
+export function VoiceStudio() {
+  const [isRecording, setIsRecording] = useState(false);
 
   return (
     <section className="card">
       <div className="toolbar" style={{ marginBottom: 18 }}>
         <div>
-          <p style={{ margin: 0, color: '#a5b4fc', letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: '0.75rem' }}>Beatmaker</p>
-          <h2 style={{ margin: '6px 0 0' }}>Pattern sequencer</h2>
+          <p style={{ margin: 0, color: '#a5b4fc', letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: '0.75rem' }}>Voix</p>
+          <h2 style={{ margin: '6px 0 0' }}>Studio vocal</h2>
         </div>
-        <button type="button" className="primary-btn">▶ Lecture</button>
+        <button type="button" className="primary-btn" onClick={() => setIsRecording((value) => !value)}>
+          {isRecording ? 'Stop' : 'Enregistrer'}
+        </button>
       </div>
 
-      <div style={{ display: 'grid', gap: 12 }}>
-        {rows.map((row) => (
-          <div key={row} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12, alignItems: 'center' }}>
-            <strong>{row}</strong>
-            <div className="step-grid">
-              {steps.map((step) => (
-                <button
-                  key={`${row}-${step}`}
-                  type="button"
-                  className={`step ${pattern[row][step] ? 'active' : ''}`}
-                  onClick={() => toggleStep(row, step)}
-                  aria-label={`${row} step ${step + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="mic-wave" style={{ border: isRecording ? '1px solid rgba(34, 197, 94, 0.7)' : '1px solid rgba(148,163,184,0.2)' }} />
+
+      <div className="grid-2" style={{ marginTop: 18 }}>
+        <div className="card" style={{ background: 'rgba(15, 23, 42, 0.5)' }}>
+          <strong>Édition</strong>
+          <p style={{ marginBottom: 0 }}>Compensation de ton, réduction du souffle, nettoyage harmonique.</p>
+        </div>
+        <div className="card" style={{ background: 'rgba(15, 23, 42, 0.5)' }}>
+          <strong>Réglages</strong>
+          <p style={{ marginBottom: 0 }}>Gain +12 dB • Compresseur 3:1 • Reverb légère</p>
+        </div>
       </div>
     </section>
   );
