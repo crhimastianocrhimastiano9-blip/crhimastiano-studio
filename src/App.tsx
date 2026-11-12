@@ -1,85 +1,52 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import type { StudioProject, StudioTab } from '../types/daw';
-import { loadProject, saveProject } from '../services/projectStorage';
+import { StudioProvider, useStudio } from './context/StudioContext';
+import { HomeDashboard } from './components/home/HomeDashboard';
+import { StudioHeader } from './components/layout/StudioHeader';
+import { TransportBar } from './components/layout/TransportBar';
+import { AudioInterruptionBanner } from './components/layout/AudioInterruptionBanner';
+import { OfflineIndicator } from './components/layout/OfflineIndicator';
+import { MobileTabBar } from './components/layout/MobileTabBar';
+import { MultitrackStudio } from './components/multitrack/MultitrackStudio';
+import { BeatMakerStudio } from './components/beatmaker/BeatMakerStudio';
+import { VoiceStudio } from './components/voice/VoiceStudio';
+import { ChoirStudio } from './components/choir/ChoirStudio';
+import { DuoStudio } from './components/duo/DuoStudio';
+import { MixMasterConsole } from './components/mixer/MixMasterConsole';
+import { AiMusicAssistant } from './components/ai/AiMusicAssistant';
+import { ExportStudio } from './components/export/ExportStudio';
+import './index.css';
 
-const defaultProject: StudioProject = {
-  id: 'studio-default',
-  name: 'Crhimastiano Session',
-  bpm: 118,
-  key: 'C',
-  timeSignature: '4/4',
-  masterVolume: 0.82,
-  monitorEnabled: true,
-  tracks: [
-    { id: 'drums', name: 'Drums', type: 'drums', color: '#8b5cf6', level: 78, muted: false, solo: false },
-    { id: 'bass', name: 'Bass', type: 'bass', color: '#22c55e', level: 66, muted: false, solo: false },
-    { id: 'vocals', name: 'Vocals', type: 'vocals', color: '#f59e0b', level: 88, muted: false, solo: false },
-    { id: 'synth', name: 'Synth', type: 'synth', color: '#38bdf8', level: 55, muted: false, solo: false },
-  ],
-};
+function StudioContent() {
+  const { activeTab } = useStudio();
 
-type StudioContextValue = {
-  project: StudioProject;
-  setProject: (project: StudioProject) => void;
-  updateTempo: (bpm: number) => void;
-  activeTab: StudioTab;
-  setActiveTab: (tab: StudioTab) => void;
-  toggleTrackMute: (trackId: string) => void;
-  toggleTrackSolo: (trackId: string) => void;
-  setTrackLevel: (trackId: string, level: number) => void;
-};
+  const views = {
+    home: <HomeDashboard />,
+    multitrack: <MultitrackStudio />,
+    beatmaker: <BeatMakerStudio />,
+    voice: <VoiceStudio />,
+    choir: <ChoirStudio />,
+    duo: <DuoStudio />,
+    mix: <MixMasterConsole />,
+    ai: <AiMusicAssistant />,
+    export: <ExportStudio />,
+  };
 
-const StudioContext = createContext<StudioContextValue | undefined>(undefined);
-
-export function StudioProvider({ children }: { children: React.ReactNode }) {
-  const [project, setProject] = useState<StudioProject>(() => loadProject() ?? defaultProject);
-  const [activeTab, setActiveTab] = useState<StudioTab>('home');
-
-  useEffect(() => {
-    saveProject(project);
-  }, [project]);
-
-  const value = useMemo<StudioContextValue>(
-    () => ({
-      project,
-      setProject,
-      updateTempo: (bpm: number) => setProject((current) => ({ ...current, bpm })),
-      activeTab,
-      setActiveTab,
-      toggleTrackMute: (trackId: string) =>
-        setProject((current) => ({
-          ...current,
-          tracks: current.tracks.map((track) =>
-            track.id === trackId ? { ...track, muted: !track.muted } : track,
-          ),
-        })),
-      toggleTrackSolo: (trackId: string) =>
-        setProject((current) => ({
-          ...current,
-          tracks: current.tracks.map((track) =>
-            track.id === trackId ? { ...track, solo: !track.solo } : track,
-          ),
-        })),
-      setTrackLevel: (trackId: string, level: number) =>
-        setProject((current) => ({
-          ...current,
-          tracks: current.tracks.map((track) =>
-            track.id === trackId ? { ...track, level } : track,
-          ),
-        })),
-    }),
-    [activeTab, project],
+  return (
+    <div className="app-shell">
+      <OfflineIndicator />
+      <AudioInterruptionBanner />
+      <StudioHeader />
+      <TransportBar />
+      <MobileTabBar />
+      <main className="studio-layout">{views[activeTab]}</main>
+      <footer className="app-footer">Crhimastiano Studio · Projet sauvegardé sur cet appareil</footer>
+    </div>
   );
-
-  return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;
 }
 
-export function useStudio() {
-  const context = useContext(StudioContext);
-
-  if (!context) {
-    throw new Error('useStudio must be used inside StudioProvider');
-  }
-
-  return context;
+export default function App() {
+  return (
+    <StudioProvider>
+      <StudioContent />
+    </StudioProvider>
+  );
 }

@@ -1,4 +1,5 @@
 export type TrackType = 'drums' | 'bass' | 'vocals' | 'synth' | 'fx';
+
 export type StudioTab =
   | 'home'
   | 'multitrack'

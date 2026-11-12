@@ -1,53 +1,30 @@
-export class AudioEngine {
-  private context: AudioContext | null = null;
+const AUDIO_STORAGE_KEY = 'crhimastiano-audio-preferences';
 
-  init() {
-    if (!this.context) {
-      const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtor) {
-        return;
-      }
-      this.context = new AudioCtor();
-    }
+export type AudioSettings = {
+  masterVolume: number;
+  monitorEnabled: boolean;
+  latencyHint: number;
+};
 
-    if (this.context.state === 'suspended') {
-      void this.context.resume();
-    }
+const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
+  masterVolume: 0.8,
+  monitorEnabled: true,
+  latencyHint: 0,
+};
+
+export function loadAudioSettings(): AudioSettings {
+  try {
+    const saved = localStorage.getItem(AUDIO_STORAGE_KEY);
+    return saved ? { ...DEFAULT_AUDIO_SETTINGS, ...JSON.parse(saved) } : DEFAULT_AUDIO_SETTINGS;
+  } catch {
+    return DEFAULT_AUDIO_SETTINGS;
   }
+}
 
-  getContext() {
-    if (!this.context) {
-      const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtor) {
-        throw new Error('Web Audio API is not supported in this browser.');
-      }
-      this.context = new AudioCtor();
-    }
-
-    return this.context;
-  }
-
-  playTone(frequency: number, duration = 0.3) {
-    this.init();
-    const ctx = this.getContext();
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-
-    gainNode.gain.value = 0.03;
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    oscillator.start();
-    oscillator.stop(ctx.currentTime + duration);
-
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-  }
-
-  destroy() {
-    void this.context?.close();
-    this.context = null;
+export function saveAudioSettings(settings: AudioSettings) {
+  try {
+    localStorage.setItem(AUDIO_STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // Storage can be unavailable or full.
   }
 }
