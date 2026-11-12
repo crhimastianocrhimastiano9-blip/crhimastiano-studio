@@ -19,6 +19,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      ANDROID_HOME: /usr/local/lib/android/sdk
 
     steps:
       - name: Récupérer le dépôt
@@ -35,24 +38,27 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Configurer Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Installer et accepter les composants Android SDK
+        run: |
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager est introuvable dans $ANDROID_SDK_ROOT/cmdline-tools" >&2
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          "$SDKMANAGER" --sdk_root="$ANDROID_SDK_ROOT" --install \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0"
 
       - name: Installer les dépendances
         run: npm install
 
-      - name: Vérifier si le projet Android existe déjà
-        id: android_project
+      - name: Générer le projet Android s’il est absent
         run: |
-          if [ -d android ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+          if [ ! -d android ]; then
+            npx cap add android
           fi
-
-      - name: Générer le projet Android
-        if: steps.android_project.outputs.exists != 'true'
-        run: npx cap add android
 
       - name: Construire l’application et synchroniser Capacitor
         run: |
@@ -60,7 +66,10 @@ jobs:
           npx cap sync android
 
       - name: Construire l’APK de débogage
-        run: cd android && ./gradlew assembleDebug
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Publier l’APK comme artefact
         uses: actions/upload-artifact@v4
