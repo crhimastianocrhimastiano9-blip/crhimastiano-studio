@@ -1,0 +1,29 @@
+# Crhimastiano Studio
+
+Application de studio musical en React + TypeScript.
+
+## Démarrage
+
+1. Installer les dépendances :
+   npm install
+2. Lancer l'application :
+   npm run dev
+3. Construire la version de production :
+   npm run build
+
+## Fonctionnalités de la version actuelle
+
+- Dashboard de navigation
+- Studio multitrack avec pistes interactives
+- Beatmaker par séquences
+- Studio vocal
+- Studio de chœur
+- Studio duo
+- Mix console
+- Assistant IA
+- Export
+- Conservation locale du projet
+
+## Note
+
+Cette version est la base web du studio. Pour générer une APK, il faudra ajouter une couche Android (Capacitor ou un projet Android natif) ensuite.

@@ -1,10 +1,14 @@
-export type TimelineBeat = {
-  id: string;
-  time: number;
-  velocity?: number;
-};
-
 export type TrackType = 'drums' | 'bass' | 'vocals' | 'synth' | 'fx';
+export type StudioTab =
+  | 'home'
+  | 'multitrack'
+  | 'beatmaker'
+  | 'voice'
+  | 'choir'
+  | 'duo'
+  | 'mix'
+  | 'ai'
+  | 'export';
 
 export type StudioTrack = {
   id: string;
@@ -13,6 +17,7 @@ export type StudioTrack = {
   color: string;
   muted?: boolean;
   solo?: boolean;
+  level?: number;
 };
 
 export type StudioProject = {
@@ -20,5 +25,8 @@ export type StudioProject = {
   name: string;
   bpm: number;
   key: string;
+  timeSignature: string;
+  masterVolume: number;
+  monitorEnabled: boolean;
   tracks: StudioTrack[];
 };

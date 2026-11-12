@@ -1,16 +1,19 @@
-import type { StudioProject } from '../types/daw';
+const AUDIO_STORAGE_KEY = 'crhimastiano-audio-preferences';
 
-const PROJECT_STORAGE_KEY = 'crhimastiano-project';
+export type AudioSettings = {
+  masterVolume: number;
+  monitorEnabled: boolean;
+  latencyHint: number;
+};
 
-export function loadProject(): StudioProject | null {
-  const raw = localStorage.getItem(PROJECT_STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as StudioProject) : null;
+export function loadAudioSettings(): AudioSettings {
+  const saved = localStorage.getItem(AUDIO_STORAGE_KEY);
+
+  return saved
+    ? { ...{ masterVolume: 0.8, monitorEnabled: true, latencyHint: 0 }, ...JSON.parse(saved) }
+    : { masterVolume: 0.8, monitorEnabled: true, latencyHint: 0 };
 }
 
-export function saveProject(project: StudioProject) {
-  localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
-}
-
-export function clearProject() {
-  localStorage.removeItem(PROJECT_STORAGE_KEY);
+export function saveAudioSettings(settings: AudioSettings) {
+  localStorage.setItem(AUDIO_STORAGE_KEY, JSON.stringify(settings));
 }

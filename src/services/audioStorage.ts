@@ -1,19 +1,53 @@
-const AUDIO_STORAGE_KEY = 'crhimastiano-audio-preferences';
+export class AudioEngine {
+  private context: AudioContext | null = null;
 
-export type AudioSettings = {
-  masterVolume: number;
-  monitorEnabled: boolean;
-  latencyHint: number;
-};
+  init() {
+    if (!this.context) {
+      const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtor) {
+        return;
+      }
+      this.context = new AudioCtor();
+    }
 
-export function loadAudioSettings(): AudioSettings {
-  const saved = localStorage.getItem(AUDIO_STORAGE_KEY);
+    if (this.context.state === 'suspended') {
+      void this.context.resume();
+    }
+  }
 
-  return saved
-    ? { ...{ masterVolume: 0.8, monitorEnabled: true, latencyHint: 0 }, ...JSON.parse(saved) }
-    : { masterVolume: 0.8, monitorEnabled: true, latencyHint: 0 };
-}
+  getContext() {
+    if (!this.context) {
+      const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtor) {
+        throw new Error('Web Audio API is not supported in this browser.');
+      }
+      this.context = new AudioCtor();
+    }
 
-export function saveAudioSettings(settings: AudioSettings) {
-  localStorage.setItem(AUDIO_STORAGE_KEY, JSON.stringify(settings));
+    return this.context;
+  }
+
+  playTone(frequency: number, duration = 0.3) {
+    this.init();
+    const ctx = this.getContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+
+    gainNode.gain.value = 0.03;
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + duration);
+
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  }
+
+  destroy() {
+    void this.context?.close();
+    this.context = null;
+  }
 }

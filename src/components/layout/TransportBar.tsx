@@ -1,17 +1,17 @@
-export function TransportBar() {
-  return (
-    <div className="card" style={{ marginTop: 18, display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button type="button">⏮</button>
-        <button type="button">▶</button>
-        <button type="button">⏭</button>
-      </div>
+import { useStudio } from '../../context/StudioContext';
 
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <span>118 BPM</span>
-        <span>4/4</span>
-        <span>C Major</span>
+export function StudioHeader() {
+  const { project } = useStudio();
+
+  return (
+    <header className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <div>
+        <p style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#a5b4fc' }}>Crhimastiano</p>
+        <h1 style={{ margin: '6px 0 0', fontSize: '2rem' }}>{project.name}</h1>
       </div>
-    </div>
+      <button type="button" className="primary-btn">
+        Nouveau projet
+      </button>
+    </header>
   );
 }

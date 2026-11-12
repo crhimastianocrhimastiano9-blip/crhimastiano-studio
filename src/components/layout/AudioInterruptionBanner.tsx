@@ -1,7 +1,34 @@
-export function AudioInterruptionBanner() {
+import { useStudio } from '../../context/StudioContext';
+import type { StudioTab } from '../../types/daw';
+
+const tabs: { key: StudioTab; label: string }[] = [
+  { key: 'home', label: 'Accueil' },
+  { key: 'multitrack', label: 'Multitrack' },
+  { key: 'beatmaker', label: 'Beat' },
+  { key: 'voice', label: 'Voix' },
+  { key: 'mix', label: 'Mix' },
+  { key: 'ai', label: 'IA' },
+  { key: 'export', label: 'Export' },
+];
+
+export function MobileTabBar() {
+  const { activeTab, setActiveTab } = useStudio();
+
   return (
-    <div style={{ marginBottom: 12, padding: '10px 14px', borderRadius: 12, background: '#f59e0b22', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
-      L’audio a été temporairement interrompu. La lecture reprendra automatiquement.
-    </div>
+    <nav className="card" style={{ marginTop: 18 }}>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between', overflowX: 'auto', flexWrap: 'wrap' }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            className={tab.key === activeTab ? 'primary-btn' : 'secondary-btn'}
+            onClick={() => setActiveTab(tab.key)}
+            style={{ flex: '1 1 120px' }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    </nav>
   );
 }

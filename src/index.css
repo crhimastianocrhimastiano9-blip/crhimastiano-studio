@@ -1,55 +1,63 @@
-* {
-  box-sizing: border-box;
+import { StudioProvider, useStudio } from './context/StudioContext';
+import { HomeDashboard } from './components/home/HomeDashboard';
+import { StudioHeader } from './components/layout/StudioHeader';
+import { TransportBar } from './components/layout/TransportBar';
+import { AudioInterruptionBanner } from './components/layout/AudioInterruptionBanner';
+import { OfflineIndicator } from './components/layout/OfflineIndicator';
+import { MultitrackStudio } from './components/multitrack/MultitrackStudio';
+import { BeatMakerStudio } from './components/beatmaker/BeatMakerStudio';
+import { VoiceStudio } from './components/voice/VoiceStudio';
+import { ChoirStudio } from './components/choir/ChoirStudio';
+import { DuoStudio } from './components/duo/DuoStudio';
+import { MixMasterConsole } from './components/mixer/MixMasterConsole';
+import { AiMusicAssistant } from './components/ai/AiMusicAssistant';
+import { ExportStudio } from './components/export/ExportStudio';
+import { MobileTabBar } from './components/layout/MobileTabBar';
+import './index.css';
+
+function StudioApp() {
+  const { activeTab } = useStudio();
+
+  const renderTab = () => {
+    switch (activeTab) {
+      case 'multitrack':
+        return <MultitrackStudio />;
+      case 'beatmaker':
+        return <BeatMakerStudio />;
+      case 'voice':
+        return <VoiceStudio />;
+      case 'choir':
+        return <ChoirStudio />;
+      case 'duo':
+        return <DuoStudio />;
+      case 'mix':
+        return <MixMasterConsole />;
+      case 'ai':
+        return <AiMusicAssistant />;
+      case 'export':
+        return <ExportStudio />;
+      case 'home':
+      default:
+        return <HomeDashboard />;
+    }
+  };
+
+  return (
+    <div className="app-shell">
+      <OfflineIndicator />
+      <AudioInterruptionBanner />
+      <StudioHeader />
+      <TransportBar />
+      <MobileTabBar />
+      <main className="studio-layout">{renderTab()}</main>
+    </div>
+  );
 }
 
-:root {
-  color: #f5f7ff;
-  background: #090b14;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: dark;
-}
-
-html, body, #root {
-  margin: 0;
-  min-height: 100%;
-  min-height: 100vh;
-}
-
-body {
-  background:
-    radial-gradient(circle at top, rgba(102, 126, 234, 0.25), transparent 30%),
-    linear-gradient(180deg, #070910 0%, #111827 100%);
-}
-
-button, input, textarea, select {
-  font: inherit;
-}
-
-.app-shell {
-  width: min(1400px, calc(100vw - 32px));
-  margin: 0 auto;
-  padding: 24px 0 48px;
-}
-
-.studio-layout {
-  display: grid;
-  grid-template-columns: 1.3fr 2fr;
-  gap: 20px;
-  margin-top: 24px;
-}
-
-.card {
-  background: rgba(17, 24, 39, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
-}
-
-@media (max-width: 900px) {
-  .studio-layout {
-    grid-template-columns: 1fr;
-  }
+export default function App() {
+  return (
+    <StudioProvider>
+      <StudioApp />
+    </StudioProvider>
+  );
 }
