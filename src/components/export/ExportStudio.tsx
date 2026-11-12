@@ -1,0 +1,17 @@
+import React, { useState } from 'react';
+import { useStudio } from '../../context/StudioContext';
+import { Download, FileAudio, Disc, FileJson, CheckCircle2 } from 'lucide-react';
+
+export const ExportStudio: React.FC = () => {
+  const { project, exportWav, exportMidi } = useStudio();
+  const [rendering, setRendering] = useState(false);
+  const [renderedWavUrl, setRenderedWavUrl] = useState<string | null>(null);
+  const [renderedBlob, setRenderedBlob] = useState<Blob | null>(null);
+  const [renderDuration, setRenderDuration] = useState(16);
+  const handleRenderMasterWav = async () => { setRendering(true); setRenderedWavUrl(null); try { const blob = await exportWav(renderDuration); setRenderedBlob(blob); setRenderedWavUrl(URL.createObjectURL(blob)); } catch (err) { console.error('Erreur rendu WAV:', err); } finally { setRendering(false); } };
+  const downloadBlob = (blob: Blob, filename: string) => { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); };
+  const baseName = project.name.toLowerCase().replace(/\s+/g, '_');
+  return <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-7xl mx-auto bg-[#0A0C10]"><div className="p-5 rounded-2xl bg-[#0E1117] border border-[#222938]"><div className="flex items-center gap-2"><Download className="w-5 h-5 text-[#F5D77F]"/><h1 className="text-lg font-bold text-white">Centre d'Exportation & Mixdown Audio</h1></div><p className="text-xs text-neutral-400">Exportez votre master WAV, vos patterns MIDI et votre projet.</p></div>
+  <div className="p-6 rounded-2xl bg-[#0E1118] border border-[#D4AF37]/30 space-y-5"><h2 className="text-xl font-bold text-white">Exportation WAV stéréo</h2><div className="flex gap-3"><select value={renderDuration} onChange={(e) => setRenderDuration(Number(e.target.value))} className="bg-[#151922] text-white"><option value={8}>8 secondes</option><option value={16}>16 secondes</option><option value={32}>32 secondes</option><option value={64}>64 secondes</option></select><button onClick={handleRenderMasterWav} disabled={rendering} className="px-5 py-2 bg-[#D4AF37] text-black font-bold text-xs rounded-lg"><FileAudio className="inline w-4 h-4 mr-2"/>{rendering ? 'Rendu en cours...' : 'Calculer le Master Audio'}</button></div>{renderedWavUrl && <div className="flex gap-3 items-center"><CheckCircle2 className="text-[#14B8A6]"/><audio controls src={renderedWavUrl}/><button onClick={() => renderedBlob && downloadBlob(renderedBlob, `${baseName}_master.wav`)} className="px-3 py-2 bg-[#14B8A6]">Télécharger WAV</button></div>}</div>
+  <div className="grid md:grid-cols-2 gap-4"><div className="p-5 rounded-xl bg-[#0E1118] border border-[#222938]"><h3 className="text-sm font-bold text-white mb-3"><Disc className="inline w-4 h-4 mr-2"/>Export MIDI</h3><button onClick={() => downloadBlob(exportMidi(), `${baseName}_rythme.mid`)} className="w-full py-2 bg-[#1A2230] text-white"><Download className="inline w-4 h-4 mr-2"/>Télécharger Séquence MIDI</button></div><div className="p-5 rounded-xl bg-[#0E1118] border border-[#222938]"><h3 className="text-sm font-bold text-white mb-3"><FileJson className="inline w-4 h-4 mr-2"/>Sauvegarde Projet JSON</h3><button onClick={() => downloadBlob(new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' }), `${baseName}_session.crhimastiano.json`)} className="w-full py-2 bg-[#1A2230] text-white"><Download className="inline w-4 h-4 mr-2"/>Télécharger l'Archive Projet</button></div></div></div>;
+};
