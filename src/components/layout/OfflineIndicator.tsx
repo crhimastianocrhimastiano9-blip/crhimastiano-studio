@@ -1,9 +1,22 @@
+import { useEffect, useState } from 'react';
+
 export function OfflineIndicator() {
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+
+  useEffect(() => {
+    const updateStatus = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    return () => {
+      window.removeEventListener('online', updateStatus);
+      window.removeEventListener('offline', updateStatus);
+    };
+  }, []);
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-      <span style={{ borderRadius: 999, background: '#16a34a33', color: '#86efac', padding: '6px 10px', fontSize: '0.8rem' }}>
-        En ligne
-      </span>
+    <div className="connection-status" role="status">
+      <span className={isOnline ? 'online-dot' : 'offline-dot'} />
+      {isOnline ? 'En ligne' : 'Hors ligne — données locales'}
     </div>
   );
 }

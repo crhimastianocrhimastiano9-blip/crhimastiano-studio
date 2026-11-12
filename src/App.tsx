@@ -2,7 +2,6 @@ import { StudioProvider, useStudio } from './context/StudioContext';
 import { HomeDashboard } from './components/home/HomeDashboard';
 import { StudioHeader } from './components/layout/StudioHeader';
 import { TransportBar } from './components/layout/TransportBar';
-import { AudioInterruptionBanner } from './components/layout/AudioInterruptionBanner';
 import { OfflineIndicator } from './components/layout/OfflineIndicator';
 import { MobileTabBar } from './components/layout/MobileTabBar';
 import { MultitrackStudio } from './components/multitrack/MultitrackStudio';
@@ -33,7 +32,6 @@ function StudioContent() {
   return (
     <div className="app-shell">
       <OfflineIndicator />
-      <AudioInterruptionBanner />
       <StudioHeader />
       <TransportBar />
       <MobileTabBar />
