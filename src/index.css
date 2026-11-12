@@ -1,0 +1,61 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --gold: #D4AF37;
+    --gold-bright: #F5D77F;
+    --gold-dark: #8C7322;
+    --turquoise: #14B8A6;
+    --turquoise-glow: #2DD4BF;
+    --bg-darkest: #07080B;
+    --bg-panel: #0E1117;
+    --bg-surface: #151922;
+    --border-subtle: #222938;
+  }
+}
+
+/* Custom scrollbars for DAW timeline & mixers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0C10;
+}
+::-webkit-scrollbar-thumb {
+  background: #252D3D;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+/* Tabular figures for timecode and meters */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Studio fader track range input */
+input[type="range"] {
+  accent-color: #14B8A6;
+}
+
+/* Piano key active shadows */
+.piano-key:active {
+  transform: translateY(2px);
+}
+
+/* Android Chrome Mobile & Touch Optimizations */
+html, body {
+  overscroll-behavior-y: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Timeline & Sequencer precision touch zone */
+.daw-touch-grid {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
