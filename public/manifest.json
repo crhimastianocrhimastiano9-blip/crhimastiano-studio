@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "CRHIMASTIANO STUDIO",
+  "short_name": "CRHIMASTIANO",
+  "description": "Station de Travail Audio Numérique (DAW) Professionnelle",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0A0C10",
+  "background_color": "#07080B",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["music", "audio", "productivity"]
+}
