@@ -7,7 +7,6 @@ on:
       - main
     paths:
       - 'package.json'
-      - 'package-lock.json'
       - 'capacitor.config.ts'
       - 'vite.config.ts'
       - 'index.html'
@@ -29,7 +28,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Configurer Java
         uses: actions/setup-java@v4
@@ -41,15 +39,15 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Installer les dépendances
-        run: npm ci
+        run: npm install
 
       - name: Vérifier si le projet Android existe déjà
         id: android_project
         run: |
           if [ -d android ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Générer le projet Android
