@@ -1,5 +1,41 @@
 import type { AudioSettings } from '../services/audioStorage';
 
+export type InstrumentPreset = 'piano' | 'electric-piano' | 'organ' | 'synth' | 'bass' | 'strings';
+
+type Voice = { waveform: OscillatorType; ratio: number; level: number };
+
+const instrumentVoices: Record<InstrumentPreset, Voice[]> = {
+  piano: [
+    { waveform: 'triangle', ratio: 1, level: 0.16 },
+    { waveform: 'sine', ratio: 2, level: 0.045 },
+    { waveform: 'sine', ratio: 3, level: 0.012 },
+  ],
+  'electric-piano': [
+    { waveform: 'sine', ratio: 1, level: 0.17 },
+    { waveform: 'sine', ratio: 2, level: 0.075 },
+    { waveform: 'sine', ratio: 4, level: 0.018 },
+  ],
+  organ: [
+    { waveform: 'sine', ratio: 1, level: 0.12 },
+    { waveform: 'sine', ratio: 2, level: 0.07 },
+    { waveform: 'sine', ratio: 3, level: 0.035 },
+  ],
+  synth: [
+    { waveform: 'sawtooth', ratio: 1, level: 0.08 },
+    { waveform: 'triangle', ratio: 1.005, level: 0.06 },
+    { waveform: 'sine', ratio: 2, level: 0.025 },
+  ],
+  bass: [
+    { waveform: 'triangle', ratio: 0.5, level: 0.16 },
+    { waveform: 'sine', ratio: 1, level: 0.065 },
+  ],
+  strings: [
+    { waveform: 'sawtooth', ratio: 1, level: 0.055 },
+    { waveform: 'triangle', ratio: 1.005, level: 0.05 },
+    { waveform: 'sine', ratio: 2, level: 0.018 },
+  ],
+};
+
 export class AudioEngine {
   private context: AudioContext | null = null;
 
@@ -18,60 +54,59 @@ export class AudioEngine {
 
   async resume() {
     const context = this.getAudioContext();
-    if (context.state === 'suspended') {
-      await context.resume();
-    }
+    if (context.state === 'suspended') await context.resume();
   }
 
   async playTone(frequency: number, duration = 0.3, settings?: AudioSettings) {
     await this.resume();
     const context = this.getAudioContext();
-
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     const now = context.currentTime;
 
     oscillator.type = 'sine';
     oscillator.frequency.value = frequency;
-
     gain.gain.setValueAtTime(Math.max(0.0001, 0.03 * (settings?.masterVolume ?? 1)), now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(now);
     oscillator.stop(now + duration);
   }
 
-  async playPianoNote(frequency: number, duration = 0.35) {
+  async playInstrumentNote(frequency: number, duration = 0.35, preset: InstrumentPreset = 'piano') {
     await this.resume();
     const context = this.getAudioContext();
     const now = context.currentTime;
-    const oscillator = context.createOscillator();
-    const overtone = context.createOscillator();
-    const gain = context.createGain();
-    const overtoneGain = context.createGain();
+    const safeDuration = Math.max(0.08, duration);
+    const attack = preset === 'strings' ? Math.min(0.08, safeDuration * 0.3) : 0.006;
+    const releaseStart = now + Math.max(attack, safeDuration * 0.65);
+    const releaseEnd = now + safeDuration;
 
-    oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(frequency, now);
-    overtone.type = 'sine';
-    overtone.frequency.setValueAtTime(frequency * 2, now);
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.08, duration));
-    overtoneGain.gain.setValueAtTime(0.035, now);
-    overtoneGain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.06, duration * 0.55));
+    for (const voice of instrumentVoices[preset]) {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = voice.waveform;
+      oscillator.frequency.setValueAtTime(frequency * voice.ratio, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(voice.level, now + attack);
+      if (preset === 'organ') {
+        gain.gain.setValueAtTime(voice.level, releaseStart);
+      } else {
+        gain.gain.setValueAtTime(voice.level, releaseStart);
+      }
+      gain.gain.exponentialRampToValueAtTime(0.0001, releaseEnd);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(releaseEnd + 0.01);
+    }
+  }
 
-    oscillator.connect(gain).connect(context.destination);
-    overtone.connect(overtoneGain).connect(context.destination);
-    oscillator.start(now);
-    overtone.start(now);
-    oscillator.stop(now + duration);
-    overtone.stop(now + duration);
+  async playPianoNote(frequency: number, duration = 0.35) {
+    return this.playInstrumentNote(frequency, duration, 'piano');
   }
 
   async destroy() {
-    if (this.context) {
-      await this.context.close();
-    }
+    if (this.context) await this.context.close();
     this.context = null;
   }
 }

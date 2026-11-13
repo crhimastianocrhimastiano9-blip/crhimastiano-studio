@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import type { StudioProject, StudioTab } from '../types/daw';
+import type { StudioProject, StudioTab, TrackType } from '../types/daw';
 import { loadProject, saveProject } from '../services/projectStorage';
 
 const defaultProject: StudioProject = {
@@ -27,6 +27,8 @@ type StudioContextValue = {
   toggleTrackMute: (trackId: string) => void;
   toggleTrackSolo: (trackId: string) => void;
   setTrackLevel: (trackId: string, level: number) => void;
+  addTrack: (name: string, type: TrackType) => void;
+  removeTrack: (trackId: string) => void;
 };
 
 const StudioContext = createContext<StudioContextValue | undefined>(undefined);
@@ -46,27 +48,30 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
       updateTempo: (bpm) => setProject((current) => ({ ...current, bpm })),
       activeTab,
       setActiveTab,
-      toggleTrackMute: (trackId) =>
-        setProject((current) => ({
+      toggleTrackMute: (trackId) => setProject((current) => ({
+        ...current,
+        tracks: current.tracks.map((track) => track.id === trackId ? { ...track, muted: !track.muted } : track),
+      })),
+      toggleTrackSolo: (trackId) => setProject((current) => ({
+        ...current,
+        tracks: current.tracks.map((track) => track.id === trackId ? { ...track, solo: !track.solo } : track),
+      })),
+      setTrackLevel: (trackId, level) => setProject((current) => ({
+        ...current,
+        tracks: current.tracks.map((track) => track.id === trackId ? { ...track, level } : track),
+      })),
+      addTrack: (name, type) => setProject((current) => {
+        const colors = ['#8b5cf6', '#22c55e', '#f59e0b', '#38bdf8', '#ec4899', '#14b8a6'];
+        const id = `track-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        return {
           ...current,
-          tracks: current.tracks.map((track) =>
-            track.id === trackId ? { ...track, muted: !track.muted } : track,
-          ),
-        })),
-      toggleTrackSolo: (trackId) =>
-        setProject((current) => ({
-          ...current,
-          tracks: current.tracks.map((track) =>
-            track.id === trackId ? { ...track, solo: !track.solo } : track,
-          ),
-        })),
-      setTrackLevel: (trackId, level) =>
-        setProject((current) => ({
-          ...current,
-          tracks: current.tracks.map((track) =>
-            track.id === trackId ? { ...track, level } : track,
-          ),
-        })),
+          tracks: [...current.tracks, { id, name, type, color: colors[current.tracks.length % colors.length], level: 75 }],
+        };
+      }),
+      removeTrack: (trackId) => setProject((current) => ({
+        ...current,
+        tracks: current.tracks.filter((track) => track.id !== trackId),
+      })),
     }),
     [activeTab, project],
   );
