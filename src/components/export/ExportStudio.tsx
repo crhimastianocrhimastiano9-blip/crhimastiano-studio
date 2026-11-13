@@ -23,7 +23,11 @@ export function ExportStudio() {
 
   const previewTone = async () => {
     try {
-      await engine.playTone(440, 0.5, { masterVolume: project.masterVolume });
+      await engine.playTone(440, 0.5, {
+        masterVolume: project.masterVolume,
+        monitorEnabled: project.monitorEnabled,
+        latencyHint: 0,
+      });
       setMessage('Aperçu sonore joué.');
     } catch {
       setMessage('La lecture audio n’est pas disponible sur cet appareil.');
