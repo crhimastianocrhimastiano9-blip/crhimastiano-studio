@@ -3,12 +3,10 @@ import type { StudioTab } from '../../types/daw';
 
 const tabs: { key: StudioTab; label: string; icon: string }[] = [
   { key: 'home', label: 'Accueil', icon: '⌂' },
-  { key: 'multitrack', label: 'Pistes', icon: '▥' },
+  { key: 'multitrack', label: 'Pistes', icon: '▣' },
   { key: 'beatmaker', label: 'Beat', icon: '▦' },
   { key: 'piano', label: 'Piano', icon: '♫' },
   { key: 'voice', label: 'Voix', icon: '◉' },
-  { key: 'choir', label: 'Chœur', icon: '♫' },
-  { key: 'duo', label: 'Duo', icon: '♬' },
   { key: 'mix', label: 'Mix', icon: '☷' },
   { key: 'ai', label: 'IA', icon: '✦' },
   { key: 'export', label: 'Export', icon: '⇧' },
