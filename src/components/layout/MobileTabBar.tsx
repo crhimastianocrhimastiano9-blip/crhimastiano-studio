@@ -1,35 +1,35 @@
 import { useStudio } from '../../context/StudioContext';
 import type { StudioTab } from '../../types/daw';
 
-const tabs: { key: StudioTab; label: string }[] = [
-  { key: 'home', label: 'Accueil' },
-  { key: 'multitrack', label: 'Multitrack' },
-  { key: 'beatmaker', label: 'Beatmaker' },
-  { key: 'piano', label: 'Piano' },
-  { key: 'voice', label: 'Voix' },
-  { key: 'choir', label: 'Chœur' },
-  { key: 'duo', label: 'Duo' },
-  { key: 'mix', label: 'Mix' },
-  { key: 'ai', label: 'IA' },
-  { key: 'export', label: 'Export' },
+const tabs: { key: StudioTab; label: string; icon: string }[] = [
+  { key: 'home', label: 'Accueil', icon: '⌂' },
+  { key: 'multitrack', label: 'Pistes', icon: '▥' },
+  { key: 'beatmaker', label: 'Beat', icon: '▦' },
+  { key: 'piano', label: 'Piano', icon: '♫' },
+  { key: 'voice', label: 'Voix', icon: '◉' },
+  { key: 'choir', label: 'Chœur', icon: '♫' },
+  { key: 'duo', label: 'Duo', icon: '♬' },
+  { key: 'mix', label: 'Mix', icon: '☷' },
+  { key: 'ai', label: 'IA', icon: '✦' },
+  { key: 'export', label: 'Export', icon: '⇧' },
 ];
 
 export function MobileTabBar() {
   const { activeTab, setActiveTab } = useStudio();
 
   return (
-    <nav className="card" aria-label="Navigation des studios" style={{ marginTop: 18 }}>
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: 4 }}>
+    <nav className="studio-nav" aria-label="Navigation du studio">
+      <div className="studio-nav-scroll">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
-            className={tab.key === activeTab ? 'primary-btn' : 'secondary-btn'}
+            className={`studio-nav-item ${tab.key === activeTab ? 'selected' : ''}`}
             onClick={() => setActiveTab(tab.key)}
             aria-current={tab.key === activeTab ? 'page' : undefined}
-            style={{ flex: '0 0 auto', minHeight: 44 }}
           >
-            {tab.label}
+            <span className="studio-nav-icon" aria-hidden="true">{tab.icon}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>

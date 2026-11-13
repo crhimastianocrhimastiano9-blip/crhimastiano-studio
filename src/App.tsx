@@ -32,7 +32,7 @@ function StudioContent() {
   };
 
   return (
-    <div className="app-shell">
+    <div className="app-shell studio-app">
       <OfflineIndicator />
       <StudioHeader />
       <TransportBar />
