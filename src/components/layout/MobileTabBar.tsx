@@ -5,6 +5,7 @@ const tabs: { key: StudioTab; label: string }[] = [
   { key: 'home', label: 'Accueil' },
   { key: 'multitrack', label: 'Multitrack' },
   { key: 'beatmaker', label: 'Beatmaker' },
+  { key: 'piano', label: 'Piano' },
   { key: 'voice', label: 'Voix' },
   { key: 'choir', label: 'Chœur' },
   { key: 'duo', label: 'Duo' },

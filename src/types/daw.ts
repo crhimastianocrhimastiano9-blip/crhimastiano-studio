@@ -4,6 +4,7 @@ export type StudioTab =
   | 'home'
   | 'multitrack'
   | 'beatmaker'
+  | 'piano'
   | 'voice'
   | 'choir'
   | 'duo'

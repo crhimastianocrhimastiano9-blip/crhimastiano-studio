@@ -173,6 +173,87 @@ button {
   border-color: transparent;
 }
 
+.piano-roll-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  margin-top: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 12px;
+}
+
+.piano-roll {
+  min-width: 650px;
+  background: rgba(5, 8, 20, 0.45);
+}
+
+.piano-roll-heading,
+.piano-roll-row {
+  display: grid;
+  grid-template-columns: 58px repeat(16, minmax(34px, 1fr));
+}
+
+.piano-roll-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #182238;
+  color: #cbd5e1;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.piano-roll-heading span {
+  padding: 8px 2px;
+}
+
+.piano-roll-key,
+.piano-note-cell {
+  min-width: 0;
+  min-height: 30px;
+  border: 0;
+  border-right: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.piano-roll-key {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding: 2px 4px;
+  color: #0f172a;
+  background: #f8fafc;
+  text-align: center;
+  font-size: 0.7rem;
+}
+
+.piano-roll-key.black-key {
+  color: white;
+  background: #334155;
+}
+
+.piano-roll-row.black-note-row .piano-note-cell {
+  background-color: rgba(148, 163, 184, 0.07);
+}
+
+.piano-note-cell {
+  background: rgba(248, 250, 252, 0.025);
+}
+
+.piano-note-cell.bar-start,
+.piano-roll-heading .bar-start {
+  border-left: 2px solid rgba(148, 163, 184, 0.42);
+}
+
+.piano-note-cell.note-active {
+  background: linear-gradient(135deg, #a855f7, #38bdf8) !important;
+  border-radius: 5px;
+}
+
+.piano-note-cell.playhead-cell:not(.note-active) {
+  background: rgba(250, 204, 21, 0.18);
+}
+
 .mic-wave {
   min-height: 100px;
   border-radius: 16px;

@@ -4,6 +4,7 @@ import type { StudioTab } from '../../types/daw';
 const studioCards: { label: string; key: StudioTab; accent: string }[] = [
   { label: 'Multitrack', key: 'multitrack', accent: '#8b5cf6' },
   { label: 'Beatmaker', key: 'beatmaker', accent: '#ec4899' },
+  { label: 'Piano roll', key: 'piano', accent: '#38bdf8' },
   { label: 'Voix', key: 'voice', accent: '#22c55e' },
   { label: 'Chœur', key: 'choir', accent: '#38bdf8' },
   { label: 'Duo', key: 'duo', accent: '#f59e0b' },

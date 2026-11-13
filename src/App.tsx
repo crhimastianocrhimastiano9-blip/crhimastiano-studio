@@ -6,6 +6,7 @@ import { OfflineIndicator } from './components/layout/OfflineIndicator';
 import { MobileTabBar } from './components/layout/MobileTabBar';
 import { MultitrackStudio } from './components/multitrack/MultitrackStudio';
 import { BeatMakerStudio } from './components/beatmaker/BeatMakerStudio';
+import { PianoRollStudio } from './components/piano/PianoRollStudio';
 import { VoiceStudio } from './components/voice/VoiceStudio';
 import { ChoirStudio } from './components/choir/ChoirStudio';
 import { DuoStudio } from './components/duo/DuoStudio';
@@ -21,6 +22,7 @@ function StudioContent() {
     home: <HomeDashboard />,
     multitrack: <MultitrackStudio />,
     beatmaker: <BeatMakerStudio />,
+    piano: <PianoRollStudio />,
     voice: <VoiceStudio />,
     choir: <ChoirStudio />,
     duo: <DuoStudio />,

@@ -42,6 +42,32 @@ export class AudioEngine {
     oscillator.stop(now + duration);
   }
 
+  async playPianoNote(frequency: number, duration = 0.35) {
+    await this.resume();
+    const context = this.getAudioContext();
+    const now = context.currentTime;
+    const oscillator = context.createOscillator();
+    const overtone = context.createOscillator();
+    const gain = context.createGain();
+    const overtoneGain = context.createGain();
+
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(frequency, now);
+    overtone.type = 'sine';
+    overtone.frequency.setValueAtTime(frequency * 2, now);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.08, duration));
+    overtoneGain.gain.setValueAtTime(0.035, now);
+    overtoneGain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.06, duration * 0.55));
+
+    oscillator.connect(gain).connect(context.destination);
+    overtone.connect(overtoneGain).connect(context.destination);
+    oscillator.start(now);
+    overtone.start(now);
+    oscillator.stop(now + duration);
+    overtone.stop(now + duration);
+  }
+
   async destroy() {
     if (this.context) {
       await this.context.close();
