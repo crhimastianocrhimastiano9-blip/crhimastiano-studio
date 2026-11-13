@@ -36,25 +36,56 @@ const instrumentVoices: Record<InstrumentPreset, Voice[]> = {
   ],
 };
 
+type RoutableAudioContext = AudioContext & { setSinkId?: (deviceId: string) => Promise<void> };
+
 export class AudioEngine {
-  private context: AudioContext | null = null;
+  private static sharedContext: AudioContext | null = null;
+  private static sharedMasterGain: GainNode | null = null;
 
-  private getAudioContext() {
-    const AudioCtor =
-      window.AudioContext ||
-      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  private getAudioContext(): AudioContext {
+    if (!AudioEngine.sharedContext) {
+      const AudioCtor =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtor) throw new Error('Web Audio API non prise en charge sur cet appareil.');
 
-    if (!AudioCtor) {
-      throw new Error('Web Audio API non prise en charge sur cet appareil.');
+      const context = new AudioCtor();
+      const masterGain = context.createGain();
+      masterGain.gain.value = 0.82;
+      masterGain.connect(context.destination);
+      AudioEngine.sharedContext = context;
+      AudioEngine.sharedMasterGain = masterGain;
     }
+    return AudioEngine.sharedContext;
+  }
 
-    this.context ??= new AudioCtor();
-    return this.context;
+  private getMasterGain() {
+    this.getAudioContext();
+    if (!AudioEngine.sharedMasterGain) throw new Error('Sortie audio indisponible.');
+    return AudioEngine.sharedMasterGain;
   }
 
   async resume() {
     const context = this.getAudioContext();
     if (context.state === 'suspended') await context.resume();
+  }
+
+  setMasterVolume(volume: number) {
+    const gain = this.getMasterGain();
+    const context = this.getAudioContext();
+    gain.gain.setTargetAtTime(Math.min(1, Math.max(0, volume)), context.currentTime, 0.015);
+  }
+
+  async selectOutputDevice(deviceId: string) {
+    const context = this.getAudioContext() as RoutableAudioContext;
+    if (typeof context.setSinkId !== 'function') {
+      throw new Error('La sélection directe d’une sortie audio n’est pas prise en charge ici. Utilise les réglages audio du téléphone.');
+    }
+    await context.setSinkId(deviceId);
+  }
+
+  supportsOutputSelection() {
+    return typeof (this.getAudioContext() as RoutableAudioContext).setSinkId === 'function';
   }
 
   async playTone(frequency: number, duration = 0.3, settings?: AudioSettings) {
@@ -68,7 +99,7 @@ export class AudioEngine {
     oscillator.frequency.value = frequency;
     gain.gain.setValueAtTime(Math.max(0.0001, 0.03 * (settings?.masterVolume ?? 1)), now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    oscillator.connect(gain).connect(context.destination);
+    oscillator.connect(gain).connect(this.getMasterGain());
     oscillator.start(now);
     oscillator.stop(now + duration);
   }
@@ -89,13 +120,9 @@ export class AudioEngine {
       oscillator.frequency.setValueAtTime(frequency * voice.ratio, now);
       gain.gain.setValueAtTime(0.0001, now);
       gain.gain.linearRampToValueAtTime(voice.level, now + attack);
-      if (preset === 'organ') {
-        gain.gain.setValueAtTime(voice.level, releaseStart);
-      } else {
-        gain.gain.setValueAtTime(voice.level, releaseStart);
-      }
+      gain.gain.setValueAtTime(voice.level, releaseStart);
       gain.gain.exponentialRampToValueAtTime(0.0001, releaseEnd);
-      oscillator.connect(gain).connect(context.destination);
+      oscillator.connect(gain).connect(this.getMasterGain());
       oscillator.start(now);
       oscillator.stop(releaseEnd + 0.01);
     }
@@ -106,7 +133,8 @@ export class AudioEngine {
   }
 
   async destroy() {
-    if (this.context) await this.context.close();
-    this.context = null;
+    if (AudioEngine.sharedContext) await AudioEngine.sharedContext.close();
+    AudioEngine.sharedContext = null;
+    AudioEngine.sharedMasterGain = null;
   }
 }

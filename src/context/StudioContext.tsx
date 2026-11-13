@@ -22,6 +22,7 @@ type StudioContextValue = {
   project: StudioProject;
   setProject: (project: StudioProject) => void;
   updateTempo: (bpm: number) => void;
+  updateMasterVolume: (volume: number) => void;
   activeTab: StudioTab;
   setActiveTab: (tab: StudioTab) => void;
   toggleTrackMute: (trackId: string) => void;
@@ -37,44 +38,25 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const [project, setProject] = useState<StudioProject>(() => loadProject() ?? defaultProject);
   const [activeTab, setActiveTab] = useState<StudioTab>('home');
 
-  useEffect(() => {
-    saveProject(project);
-  }, [project]);
+  useEffect(() => { saveProject(project); }, [project]);
 
-  const value = useMemo<StudioContextValue>(
-    () => ({
-      project,
-      setProject,
-      updateTempo: (bpm) => setProject((current) => ({ ...current, bpm })),
-      activeTab,
-      setActiveTab,
-      toggleTrackMute: (trackId) => setProject((current) => ({
-        ...current,
-        tracks: current.tracks.map((track) => track.id === trackId ? { ...track, muted: !track.muted } : track),
-      })),
-      toggleTrackSolo: (trackId) => setProject((current) => ({
-        ...current,
-        tracks: current.tracks.map((track) => track.id === trackId ? { ...track, solo: !track.solo } : track),
-      })),
-      setTrackLevel: (trackId, level) => setProject((current) => ({
-        ...current,
-        tracks: current.tracks.map((track) => track.id === trackId ? { ...track, level } : track),
-      })),
-      addTrack: (name, type) => setProject((current) => {
-        const colors = ['#8b5cf6', '#22c55e', '#f59e0b', '#38bdf8', '#ec4899', '#14b8a6'];
-        const id = `track-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-        return {
-          ...current,
-          tracks: [...current.tracks, { id, name, type, color: colors[current.tracks.length % colors.length], level: 75 }],
-        };
-      }),
-      removeTrack: (trackId) => setProject((current) => ({
-        ...current,
-        tracks: current.tracks.filter((track) => track.id !== trackId),
-      })),
+  const value = useMemo<StudioContextValue>(() => ({
+    project,
+    setProject,
+    updateTempo: (bpm) => setProject((current) => ({ ...current, bpm })),
+    updateMasterVolume: (masterVolume) => setProject((current) => ({ ...current, masterVolume })),
+    activeTab,
+    setActiveTab,
+    toggleTrackMute: (trackId) => setProject((current) => ({ ...current, tracks: current.tracks.map((track) => track.id === trackId ? { ...track, muted: !track.muted } : track) })),
+    toggleTrackSolo: (trackId) => setProject((current) => ({ ...current, tracks: current.tracks.map((track) => track.id === trackId ? { ...track, solo: !track.solo } : track) })),
+    setTrackLevel: (trackId, level) => setProject((current) => ({ ...current, tracks: current.tracks.map((track) => track.id === trackId ? { ...track, level } : track) })),
+    addTrack: (name, type) => setProject((current) => {
+      const colors = ['#8b5cf6', '#22c55e', '#f59e0b', '#38bdf8', '#ec4899', '#14b8a6'];
+      const id = `track-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      return { ...current, tracks: [...current.tracks, { id, name, type, color: colors[current.tracks.length % colors.length], level: 75 }] };
     }),
-    [activeTab, project],
-  );
+    removeTrack: (trackId) => setProject((current) => ({ ...current, tracks: current.tracks.filter((track) => track.id !== trackId) })),
+  }), [activeTab, project]);
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;
 }
